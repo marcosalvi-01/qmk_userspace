@@ -3,26 +3,22 @@
 
 #pragma once
 
-/*
- * Feature disable options
- *  These options are also useful to firmware size reduction.
- */
-
 #define MASTER_RIGHT
 
+// mod-tap configs
 #define TAPPING_TERM 200
 #define TAPPING_TERM_PER_KEY
-
-#define ALT_TAB_TIMER 800
-
-#define ACHORDION_TIMEOUT 800
-
-#define CAPS_WORD_IDLE_TIMEOUT 10000  // 10 seconds.
-
-#define QUICK_TAP_TERM 0    // Disable key repeat on mod tap keys
-
 #define PERMISSIVE_HOLD
 
+// qmk's achordion
+#define CHORDAL_HOLD
+
+#define CAPS_WORD_IDLE_TIMEOUT 10000
+
+// Disable key repeat on mod tap keys
+#define QUICK_TAP_TERM 0
+
+// for raw hid
 #define RAW_USAGE_PAGE 0xFF60
 #define RAW_USAGE_ID 0x61
 
@@ -30,5 +26,3 @@
 #undef LOCKING_SUPPORT_ENABLE
 #undef LOCKING_RESYNC_ENABLE
 #define NO_ACTION_ONESHOT
-
-#define ACHORDION_STREAK

@@ -20,7 +20,17 @@ endif
 
 # Helper target to sync keyboard files from userspace to QMK firmware
 sync_keyboards:
-	# Copy the contents of the keyboard directory from the userspace to the qmk firmware dir
+	@echo "Syncing keyboards from userspace to QMK firmware..."
+	@# Find directories in keyboards folder and remove them from QMK firmware dir before copying
+	@for kb in $(wildcard ${QMK_USERSPACE}/keyboards/*); do \
+		kb_name=$$(basename $$kb); \
+		if [ -d "${QMK_FIRMWARE_ROOT}/keyboards/$$kb_name" ]; then \
+			echo "Removing existing keyboard: $$kb_name"; \
+			rm -rf ${QMK_FIRMWARE_ROOT}/keyboards/$$kb_name; \
+		fi; \
+	done
+	@# Copy the contents of the keyboard directory from the userspace to the qmk firmware dir
+	@echo "Copying keyboards to QMK firmware directory..."
 	cp -r ${QMK_USERSPACE}/keyboards/* ${QMK_FIRMWARE_ROOT}/keyboards/
 
 %: sync_keyboards
