@@ -34,4 +34,4 @@ sync_keyboards:
 	cp -r ${QMK_USERSPACE}/keyboards/* ${QMK_FIRMWARE_ROOT}/keyboards/
 
 %: sync_keyboards
-	+$(MAKE) -C $(QMK_FIRMWARE_ROOT) $(MAKECMDGOALS) QMK_USERSPACE=$(QMK_USERSPACE)
+	+$(MAKE) -C $(QMK_FIRMWARE_ROOT) $@ QMK_USERSPACE=$(QMK_USERSPACE)
