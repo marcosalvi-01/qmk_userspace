@@ -1,0 +1,1 @@
+#define COMBO_MUST_TAP_PER_COMBO
