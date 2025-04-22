@@ -12,6 +12,9 @@ GRAVE_ESC_ENABLE 	= no
 MAGIC_ENABLE 		= no
 MUSIC_ENABLE 		= no
 
+# used to communicate with the host through a dedicated HID interface
+RAW_ENABLE = yes
+
 # Add custom shift and achordion
 SRC += features/custom_shift_keys.c		# (https://getreuer.info/posts/keyboards/custom-shift-keys/index.html)
 SRC += features/achordion.c 			# (https://getreuer.info/posts/keyboards/achordion/index.html)

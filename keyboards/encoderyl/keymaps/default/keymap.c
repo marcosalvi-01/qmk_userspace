@@ -5,6 +5,7 @@
 #include "keymap_italian.h"
 #include "sendstring_italian.h"
 #include "print.h"
+#include "raw_hid.h"
 #include "features/custom_shift_keys.h"
 #include "features/achordion.h"
 
@@ -15,6 +16,7 @@ enum layer_names {
     _SYMBOLS    = 3,
     _BUTTON     = 4,
     _FUNCTION   = 5,
+    _SHORTCUTS  = 6,
     _GAME       = 7,    // Needs to be 7 because that's what the Autohotkey script expects
 };
 
@@ -23,6 +25,7 @@ enum custom_keycodes {
     BACKTICK,
     TILDE,
     ALT_TAB_NAV,
+    TMUX_SESSIONIZER,
 };
 
 bool alt_tab_nav_active = false;
@@ -32,13 +35,57 @@ enum td_keycodes {
     TD_MPLY_MNXT_MPRV,  // Tap dance for media play, next and previous
     TD_Y_CLIP,          // Tap dance for y and clip with nvidia shadowplay
     TD_EGRV_SFT,
+    TD_EMAIL,
 };
 
-// Used by Autohotkey to display the current layer info (only game and default)
+// Email macro
+void email_on_press(tap_dance_state_t *state, void *user_data){
+    // Empty function to follow the function signature, the important part is the release function
+}
+void email_on_release(tap_dance_state_t *state, void *user_data){
+    switch (((state->count - 1) % 3) + 1) {
+        case 1:
+            if (state->count > 3) {
+                // Delete the previous email
+                for (int i = 0; i < 22; i++) {
+                    register_code(KC_BSPC);
+                }
+            }
+            SEND_STRING("marco.salvi@ingv.it");
+            break;
+        case 2:
+            // Delete the previous email
+            for (int i = 0; i < 19; i++) {
+                register_code(KC_BSPC);
+            }
+            SEND_STRING("mykratos00@gmail.com");
+            break;
+        case 3:
+            // Delete the previous email
+            for (int i = 0; i < 20; i++) {
+                register_code(KC_BSPC);
+            }
+            SEND_STRING("1marco.salvi@gmail.com");
+            break;
+    }
+}
+
+// OLD: Used by Autohotkey to display the current layer info (only game and default)
+/* if(get_highest_layer(state) == _GAME || (get_highest_layer(layer_state) == _GAME && get_highest_layer(state) == _BASE)) */
+/*     uprintf("KBHLayer%u%s\n", get_highest_layer(state), ""); */
+
 layer_state_t layer_state_set_user(layer_state_t state) {
     // If the highest layer is either game or base coming from game, print the layer
-    if(get_highest_layer(state) == _GAME || (get_highest_layer(layer_state) == _GAME && get_highest_layer(state) == _BASE))
-        uprintf("KBHLayer%u%s\n", get_highest_layer(state), "");
+    if (get_highest_layer(state) == _GAME ||
+       (get_highest_layer(layer_state) == _GAME && get_highest_layer(state) == _BASE)) {
+        char report[32];
+        // Clear the buffer to ensure unused bytes are zero
+        memset(report, 0, sizeof(report));
+        // Fill the buffer with your layer message
+        snprintf(report, sizeof(report), "[%u]", get_highest_layer(state));
+        // Send exactly 32 bytes over the raw HID interface
+        raw_hid_send((uint8_t *)report, sizeof(report));
+    }
 
     switch (get_highest_layer(state)) {
         case _BASE:
@@ -111,34 +158,38 @@ void egrv_sft_finished(tap_dance_state_t *state, void *user_data){
 tap_dance_action_t tap_dance_actions[] = {
     [TD_MPLY_MNXT_MPRV] = ACTION_TAP_DANCE_FN(pause_next_previous),
     [TD_Y_CLIP] = ACTION_TAP_DANCE_FN(y_clip),
-    [TD_EGRV_SFT] = ACTION_TAP_DANCE_FN(egrv_sft_finished)
+    [TD_EGRV_SFT] = ACTION_TAP_DANCE_FN(egrv_sft_finished),
+    [TD_EMAIL] = ACTION_TAP_DANCE_FN_ADVANCED_WITH_RELEASE(email_on_press, email_on_release, email_on_press, email_on_press),
 };
 
-// Custom tapping term for specific keys
-// uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-//     switch (keycode) {
-//         case LT(_SYMBOLS, KC_SPC):
-//             return 300;
-//         default:
-//             return TAPPING_TERM;
-//     }
-// }
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case TD(TD_EMAIL):
+            return 2000;
+        case LALT_T(KC_R):
+            return 200;
+        default:
+            return TAPPING_TERM;
+    }
+}
 
 // Combos
-const uint16_t PROGMEM game_layer_combo[] = {KC_C, KC_D, COMBO_END};
-const uint16_t PROGMEM caps_word_combo[] = {KC_L, IT_DOT, COMBO_END};
-const uint16_t PROGMEM escape_combo_game[] = {KC_R, KC_S, KC_T, COMBO_END};
+const uint16_t PROGMEM game_layer_combo[] = {KC_V, KC_D, COMBO_END};
+const uint16_t PROGMEM base_layer_combo[] = {KC_X, KC_C, COMBO_END};
+const uint16_t PROGMEM caps_word_combo[] = {KC_H, IT_DOT, COMBO_END};
+const uint16_t PROGMEM escape_combo_game[] = {KC_A, KC_S, KC_D, COMBO_END};
 const uint16_t PROGMEM escape_combo_base[] = {LALT_T(KC_R), LSFT_T(KC_S), LCTL_T(KC_T), COMBO_END};
-const uint16_t PROGMEM caps_lock_combo[] = {KC_D, KC_L, COMBO_END};
-const uint16_t PROGMEM vim_combo[] = {LCTL_T(KC_N), LSFT_T(KC_E), LALT_T(KC_I), COMBO_END};
+const uint16_t PROGMEM caps_lock_combo[] = {KC_D, KC_H, COMBO_END};
+const uint16_t PROGMEM vim_combo[] = {LCTL_T(KC_N), LSFT_T(KC_E), COMBO_END};
 
 combo_t key_combos[] = {
     COMBO(game_layer_combo, TG(_GAME)),
+    COMBO(base_layer_combo, TG(_GAME)),
     COMBO(caps_word_combo, CW_TOGG),
     COMBO(escape_combo_game, KC_ESC),
     COMBO(caps_lock_combo, KC_CAPS),
     COMBO(escape_combo_base, KC_ESC),
-    COMBO(vim_combo, C(KC_F9)),
+    COMBO(vim_combo, KC_ESC),
 };
 
 // Caps Word behavior
@@ -234,6 +285,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 tap_code16(KC_TAB);
             }
             return false;
+        case TMUX_SESSIONIZER:
+            if (record->event.pressed) {
+                register_code(KC_LCTL);
+                tap_code16(KC_T);
+                unregister_code(KC_LCTL);
+                tap_code16(KC_O);
+            }
         default:
             return true;
     }
@@ -263,7 +321,7 @@ bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record, ui
 
     // Exceptionally consider the following chords as holds, even though they are on the same hand.
     switch (tap_hold_keycode) {
-        case LT(_BUTTON, KC_Z):
+        case LT(_BUTTON, KC_W):
             return true;
     }
 
@@ -293,10 +351,19 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
 // Encoder behavior based on the current layer
 bool encoder_update_user(uint8_t index, bool clockwise) {
     switch(get_highest_layer(layer_state)) {
-        // Alt tab
-        case _BUTTON:
-        case _GAME:
         case _BASE:
+        case _BUTTON:
+            if (clockwise) {
+                tap_code16(KC_SPC);
+                tap_code16(KC_H);
+                tap_code16(KC_N);
+            } else {
+                tap_code16(KC_SPC);
+                tap_code16(KC_H);
+                tap_code16(KC_P);
+            }
+            break;
+        case _GAME:
             if (clockwise) {
                 if (!is_alt_tab_active) {
                     is_alt_tab_active = true;
@@ -312,16 +379,33 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
                 alt_tab_timer = timer_read();
                 tap_code16(S(KC_TAB));
             }
+            layer_move(_BASE);
             break;
         // Navigation in applications (switch between tabs)
         case _SYMBOLS:
             clockwise ? tap_code16(C(KC_PGDN)) : tap_code16(C(KC_PGUP));
             break;
         case _NUMBERS:
-            clockwise ? tap_code16(KC_WH_D) : tap_code16(KC_WH_U);  // Scroll wheel
+        case _FUNCTION:
+            clockwise ? tap_code16(KC_VOLU) : tap_code16(KC_VOLD);  // Scroll wheel
             break;
     }
     return false;
+}
+
+bool achordion_eager_mod(uint8_t mod) {
+    switch (mod) {
+        case MOD_LSFT:
+        case MOD_RSFT:
+        case MOD_LCTL:
+        case MOD_RCTL:
+        case MOD_LALT:
+        case MOD_RALT:
+            return true;
+
+        default:
+            return false;
+    }
 }
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -340,10 +424,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     *                   └───┘   └───┘
     */
     [_BASE] = LAYOUT_split_3x5_3(
-        KC_Q,              KC_W,         KC_F,                 KC_P,                 KC_B,                   KC_J,                  KC_H,                     KC_U,         KC_Y,         IT_QUES,
-        LGUI_T(KC_A),      LALT_T(KC_R), LSFT_T(KC_S),         LCTL_T(KC_T),         KC_G,                   KC_M,                  LCTL_T(KC_N),             LSFT_T(KC_E), LALT_T(KC_I), LGUI_T(KC_O),
-        LT(_BUTTON, KC_Z), KC_X,         KC_C,                 KC_D,                 KC_V,                   KC_K,                  KC_L,                     IT_DOT,      IT_COMM,       LT(_BUTTON, IT_MINS),
-                                         LT(_NUMBERS, KC_DEL), LT(_SYMBOLS, KC_SPC), KC_TAB,                 LT(_FUNCTION, KC_ENT), LT(_NAVIGATION, KC_BSPC), KC_ESC
+        KC_Q,              KC_L,         KC_Y,                 KC_P,                 KC_B,                                   KC_Z,                  KC_F,                     KC_O,         KC_U,         IT_QUES,
+        LGUI_T(KC_C),      LALT_T(KC_R), LSFT_T(KC_S),         LCTL_T(KC_T),         KC_G,                                   KC_M,                  LCTL_T(KC_N),             LSFT_T(KC_E), LALT_T(KC_I), LGUI_T(KC_A),
+        LT(_BUTTON, KC_W), KC_J,         KC_V,                 KC_D,                 KC_K,                                   KC_X,                  KC_H,                     IT_DOT,      IT_COMM,       LT(_BUTTON, IT_MINS),
+                                         LT(_NUMBERS, KC_DEL), LT(_SYMBOLS, KC_SPC), LT(_FUNCTION, KC_TAB),                 LT(_SHORTCUTS, KC_ENT), LT(_NAVIGATION, KC_BSPC), KC_ESC
     ),
     /* Navigation Layer
     * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
@@ -360,10 +444,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     *                   └───┘   └───┘
     */
     [_NAVIGATION] = LAYOUT_split_3x5_3(
-        _______, KC_HOME, KC_UP,   KC_END,      _______,        _______, _______, _______, _______, _______,
-        KC_PGUP, KC_LEFT, KC_DOWN, KC_RGHT,     _______,        _______, KC_LCTL, KC_LSFT, KC_LALT, KC_LGUI,
-        KC_PGDN, _______, _______, _______,     _______,        _______, _______, _______, _______, _______,
-                          _______, ALT_TAB_NAV, _______,        _______, _______, _______
+        _______, KC_HOME, KC_UP,   KC_END,           _______,        _______, _______, _______, _______, _______,
+        KC_PGUP, KC_LEFT, KC_DOWN, KC_RGHT,          _______,        _______, KC_LCTL, KC_LSFT, KC_LALT, KC_LGUI,
+        KC_PGDN, _______, _______, _______,          _______,        _______, _______, _______, _______, _______,
+                          _______, TMUX_SESSIONIZER, _______,        _______, _______, _______
     ),
     /* Numbers Layer
     * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
@@ -384,6 +468,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LGUI, KC_LALT, KC_LSFT, KC_LCTL, _______,        _______, KC_4, KC_5, KC_6, IT_CIRC,
         _______, _______, _______, _______, _______,        _______, KC_1, KC_2, KC_3, IT_SLSH,
                           _______, _______, _______,        _______, KC_0, _______
+    ),
+    [_SHORTCUTS] = LAYOUT_split_3x5_3(
+        _______, HYPR(KC_9), HYPR(KC_8), HYPR(KC_7), _______,        _______, _______, _______, _______, _______,
+        _______, HYPR(KC_6), HYPR(KC_5), HYPR(KC_4), _______,        KC_LGUI, KC_LALT, KC_LSFT, KC_LCTL, _______,
+        _______, HYPR(KC_3), HYPR(KC_2), HYPR(KC_1), _______,        _______, _______, _______, _______, _______,
+                          _______, HYPR(KC_0), _______,        _______, _______, _______
     ),
     /* Symbols Layer
     * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
@@ -420,8 +510,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     *                   └───┘   └───┘
     */
     [_BUTTON] = LAYOUT_split_3x5_3(
-        _______, _______, _______, _______, LALT(KC_F4),        _______, _______,   IT_UGRV, _______, QK_BOOTLOADER,
-        IT_AGRV, _______, _______, LSG(KC_S), _______,      _______,  _______, TD(TD_EGRV_SFT), IT_IGRV, IT_OGRV,
+        _______, _______, _______, _______, LALT(KC_F4),        _______, _______,  IT_OGRV, IT_UGRV, QK_BOOTLOADER,
+        _______, _______, _______, LSG(KC_S), _______,      _______,  TD(TD_EMAIL), TD(TD_EGRV_SFT), IT_IGRV, IT_AGRV,
         C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),        C(KC_Y),     C(KC_V),   C(KC_C), C(KC_X), C(KC_Z),
                           _______, C(KC_Z), _______,        _______,     _______,   _______
     ),
@@ -446,8 +536,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     //                 LSFT_T(KC_1), KC_SPC, LALT_T(KC_2),     KC_ENT, KC_BSPC, _______
     // ),
     [_GAME] = LAYOUT_split_3x5_3(
-        KC_1, KC_Q, KC_W,         KC_E,   KC_R,             KC_T,   KC_Y,    KC_U,   TD(TD_Y_CLIP), TO(_BASE),
-        KC_2, KC_A, KC_S,         KC_D,   KC_F,             KC_M,   KC_N,    KC_E,   KC_I,          KC_O,
+        KC_TAB, KC_Q, KC_W,         KC_E,   KC_R,             KC_T,   KC_Y,    KC_U,   TD(TD_Y_CLIP), TO(_BASE),
+        KC_4, KC_A, KC_S,         KC_D,   KC_F,             KC_M,   KC_N,    KC_E,   KC_I,          KC_O,
         KC_3, KC_Z, KC_X,         KC_C,   KC_V,             KC_K,   KC_L,    IT_DOT, IT_COMM,       TD(TD_MPLY_MNXT_MPRV),
                     LSFT_T(KC_1), KC_SPC, LALT_T(KC_2),     KC_ENT, KC_BSPC, _______
     ),
@@ -466,10 +556,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     *                   └───┘   └───┘
     */
     [_FUNCTION] = LAYOUT_split_3x5_3(
-        _______, KC_F7, KC_F8,   KC_F9,   KC_F12,          _______, _______, _______, _______, _______,
-        KC_VOLU, KC_F4, KC_F5,   KC_F6,   KC_F11,          _______, _______, _______, _______, _______,
-        KC_VOLD, KC_F1, KC_F2,   KC_F3,   KC_F10,          _______, _______, _______, _______, _______,
-                        KC_MPRV, KC_MPLY, KC_MNXT,         _______, _______, _______
+        _______, _______, _______, _______, _______,         KC_MNXT, KC_F7, KC_F8,   KC_F9,   KC_F12,
+        KC_LGUI, KC_LALT, KC_LSFT, KC_LCTL, _______,         KC_MPLY, KC_F4, KC_F5,   KC_F6,   KC_F11,
+        _______, _______, _______, _______, _______,         KC_MPRV, KC_F1, KC_F2,   KC_F3,   KC_F10,
+                          _______, _______, _______,         KC_MPRV, KC_MPLY, KC_MNXT
     ),
 };
 
