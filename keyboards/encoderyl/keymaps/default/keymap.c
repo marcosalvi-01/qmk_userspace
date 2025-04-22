@@ -37,6 +37,7 @@ enum td_keycodes {
 void email_on_press(tap_dance_state_t *state, void *user_data) {
     // Empty function to follow the function signature, the important part is the release function
 }
+
 void email_on_release(tap_dance_state_t *state, void *user_data) {
     switch (((state->count - 1) % 3) + 1) {
         case 1:
@@ -64,10 +65,6 @@ void email_on_release(tap_dance_state_t *state, void *user_data) {
             break;
     }
 }
-
-// OLD: Used by Autohotkey to display the current layer info (only game and default)
-/* if(get_highest_layer(state) == _GAME || (get_highest_layer(layer_state) == _GAME && get_highest_layer(state) == _BASE)) */
-/*     uprintf("KBHLayer%u%s\n", get_highest_layer(state), ""); */
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     // If the highest layer is either game or base coming from game, print the layer
@@ -98,6 +95,7 @@ void pause_next_previous(tap_dance_state_t *state, void *user_data) {
             break;
     }
 }
+
 // Y and clip macro used in shadowplay
 void y_clip(tap_dance_state_t *state, void *user_data) {
     switch (state->count) {
@@ -345,155 +343,170 @@ bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record, u
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* Default Layer
-    * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
-    * │ Q │ W │ F │ P │ B │       │ J │ H │ U │ Y │ ? │
-    * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-    * │ A │ R │ S │ T │ G │       │ M │ N │ E │ I │ O │
-    * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-    * │ Z │ X │ C │ D │ V │       │ K │ L │ . │ , │ - │
-    * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
-    *           ┌───┐                   ┌───┐
-    *           │Del├───┐           ┌───┤Esc│
-    *           └───┤Spc├───┐   ┌───┤Bsp├───┘
-    *               └───┤Tab│   │Ent├───┘
-    *                   └───┘   └───┘
-    */
+     * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
+     * │ Q │ L │ Y │ P │ B │       │ Z │ F │ O │ U │ ? │
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │ C │ R │ S │ T │ G │       │ M │ N │ E │ I │ A │
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │ W │ J │ V │ D │ K │       │ X │ H │ . │ , │ - │
+     * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
+     *           ┌───┐                   ┌───┐
+     *           │Del├───┐           ┌───┤Esc│
+     *           └───┤Spc├───┐   ┌───┤Bsp├───┘
+     *               └───┤Tab│   │Ent├───┘
+     *                   └───┘   └───┘
+     */
     [_BASE] = LAYOUT_split_3x5_3(
-        KC_Q,              KC_L,         KC_Y,                 KC_P,                 KC_B,                                   KC_Z,                  KC_F,                     KC_O,         KC_U,         IT_QUES,
-        LGUI_T(KC_C),      LALT_T(KC_R), LSFT_T(KC_S),         LCTL_T(KC_T),         KC_G,                                   KC_M,                  LCTL_T(KC_N),             LSFT_T(KC_E), LALT_T(KC_I), LGUI_T(KC_A),
-        LT(_BUTTON, KC_W), KC_J,         KC_V,                 KC_D,                 KC_K,                                   KC_X,                  KC_H,                     IT_DOT,      IT_COMM,       LT(_BUTTON, IT_MINS),
-                                         LT(_NUMBERS, KC_DEL), LT(_SYMBOLS, KC_SPC), LT(_FUNCTION, KC_TAB),                 LT(_SHORTCUTS, KC_ENT), LT(_NAVIGATION, KC_BSPC), KC_ESC
+        KC_Q,              KC_L,         KC_Y,                 KC_P,                 KC_B,                    KC_Z,                  KC_F,                     KC_O,         KC_U,         IT_QUES,
+        LGUI_T(KC_C),      LALT_T(KC_R), LSFT_T(KC_S),         LCTL_T(KC_T),         KC_G,                    KC_M,                  LCTL_T(KC_N),             LSFT_T(KC_E), LALT_T(KC_I), LGUI_T(KC_A),
+        LT(_BUTTON, KC_W), KC_J,         KC_V,                 KC_D,                 KC_K,                    KC_X,                  KC_H,                     IT_DOT,       IT_COMM,      LT(_BUTTON, IT_MINS),
+                                         LT(_NUMBERS, KC_DEL), LT(_SYMBOLS, KC_SPC), LT(_FUNCTION, KC_TAB),   LT(_SHORTCUTS, KC_ENT), LT(_NAVIGATION, KC_BSPC), KC_ESC
     ),
+
     /* Navigation Layer
-    * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
-    * │   │HOM│ ^ │END│   │       │   │   │   │   │   │
-    * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-    * │PUP│ < │ v │ > │   │       │   │   │   │   │   │
-    * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-    * │PDN│   │   │   │   │       │   │   │   │   │   │
-    * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
-    *           ┌───┐                   ┌───┐
-    *           │   ├───┐           ┌───┤   │
-    *           └───┤   ├───┐   ┌───┤   ├───┘
-    *               └───┤   │   │   ├───┘
-    *                   └───┘   └───┘
-    */
+     * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
+     * │   │HOM│ ^ │END│   │       │   │   │   │   │   │
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │PUP│ < │ v │ > │   │       │   │CTL│SFT│ALT│GUI│
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │PDN│   │   │   │   │       │   │   │   │   │   │
+     * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
+     *           ┌───┐                   ┌───┐
+     *           │   ├───┐           ┌───┤   │
+     *           └───┤TMX├───┐   ┌───┤   ├───┘
+     *               └───┤   │   │   ├───┘
+     *                   └───┘   └───┘
+     */
     [_NAVIGATION] = LAYOUT_split_3x5_3(
-        _______, KC_HOME, KC_UP,   KC_END,           _______,        _______, _______, _______, _______, _______,
-        KC_PGUP, KC_LEFT, KC_DOWN, KC_RGHT,          _______,        _______, KC_LCTL, KC_LSFT, KC_LALT, KC_LGUI,
-        KC_PGDN, _______, _______, _______,          _______,        _______, _______, _______, _______, _______,
-                          _______, TMUX_SESSIONIZER, _______,        _______, _______, _______
+        _______, KC_HOME, KC_UP,   KC_END,           _______,           _______, _______, _______, _______, _______,
+        KC_PGUP, KC_LEFT, KC_DOWN, KC_RGHT,          _______,           _______, KC_LCTL, KC_LSFT, KC_LALT, KC_LGUI,
+        KC_PGDN, _______, _______, _______,          _______,           _______, _______, _______, _______, _______,
+                          _______, TMUX_SESSIONIZER, _______,           _______, _______, _______
     ),
+
     /* Numbers Layer
-    * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
-    * │   │   │   │   │   │       │   │ 7 │ 8 │ 9 │   │
-    * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-    * │   │   │   │   │   │       │   │ 4 │ 5 │ 6 │ ^ │
-    * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-    * │   │   │   │   │   │       │   │ 1 │ 2 │ 3 │ / │
-    * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
-    *           ┌───┐                   ┌───┐
-    *           │   ├───┐           ┌───┤   │
-    *           └───┤   ├───┐   ┌───┤ 0 ├───┘
-    *               └───┤   │   │   ├───┘
-    *                   └───┘   └───┘
-    */
+     * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
+     * │   │   │   │   │   │       │   │ 7 │ 8 │ 9 │   │
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │GUI│ALT│SFT│CTL│   │       │   │ 4 │ 5 │ 6 │ ^ │
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │   │   │   │   │   │       │   │ 1 │ 2 │ 3 │ / │
+     * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
+     *           ┌───┐                   ┌───┐
+     *           │   ├───┐           ┌───┤   │
+     *           └───┤   ├───┐   ┌───┤ 0 ├───┘
+     *               └───┤   │   │   ├───┘
+     *                   └───┘   └───┘
+     */
     [_NUMBERS] = LAYOUT_split_3x5_3(
-        _______, _______, _______, _______, _______,        _______, KC_7, KC_8, KC_9, _______,
-        KC_LGUI, KC_LALT, KC_LSFT, KC_LCTL, _______,        _______, KC_4, KC_5, KC_6, IT_CIRC,
-        _______, _______, _______, _______, _______,        _______, KC_1, KC_2, KC_3, IT_SLSH,
-                          _______, _______, _______,        _______, KC_0, _______
+        _______, _______, _______, _______, _______,           _______, KC_7, KC_8, KC_9, _______,
+        KC_LGUI, KC_LALT, KC_LSFT, KC_LCTL, _______,           _______, KC_4, KC_5, KC_6, IT_CIRC,
+        _______, _______, _______, _______, _______,           _______, KC_1, KC_2, KC_3, IT_SLSH,
+                          _______, _______, _______,           _______, KC_0, _______
     ),
+
+    /* Shortcuts Layer
+     * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
+     * │   │HY9│HY8│HY7│   │       │   │   │   │   │   │
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │   │HY6│HY5│HY4│   │       │GUI│ALT│SFT│CTL│   │
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │   │HY3│HY2│HY1│   │       │   │   │   │   │   │
+     * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
+     *           ┌───┐                   ┌───┐
+     *           │   ├───┐           ┌───┤   │
+     *           └───┤HY0├───┐   ┌───┤   ├───┘
+     *               └───┤   │   │   ├───┘
+     *                   └───┘   └───┘
+     */
     [_SHORTCUTS] = LAYOUT_split_3x5_3(
-        _______, HYPR(KC_9), HYPR(KC_8), HYPR(KC_7), _______,        _______, _______, _______, _______, _______,
-        _______, HYPR(KC_6), HYPR(KC_5), HYPR(KC_4), _______,        KC_LGUI, KC_LALT, KC_LSFT, KC_LCTL, _______,
-        _______, HYPR(KC_3), HYPR(KC_2), HYPR(KC_1), _______,        _______, _______, _______, _______, _______,
-                          _______, HYPR(KC_0), _______,        _______, _______, _______
+        _______, HYPR(KC_9), HYPR(KC_8), HYPR(KC_7), _______,           _______, _______, _______, _______, _______,
+        _______, HYPR(KC_6), HYPR(KC_5), HYPR(KC_4), _______,           KC_LGUI, KC_LALT, KC_LSFT, KC_LCTL, _______,
+        _______, HYPR(KC_3), HYPR(KC_2), HYPR(KC_1), _______,           _______, _______, _______, _______, _______,
+                          _______, HYPR(KC_0), _______,                  _______, _______, _______
     ),
+
     /* Symbols Layer
-    * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
-    * │   │   │   │   │   │       │ ` │ * │ @ │ $ │ # │
-    * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-    * │   │   │   │   │   │       │ < │ = │ " │ { │ [ │
-    * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-    * │   │   │   │   │   │       │ % │ / │ ! │ & │ | │
-    * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
-    *           ┌───┐                   ┌───┐
-    *           │   ├───┐           ┌───┤   │
-    *           └───┤   ├───┐   ┌───┤ ( ├───┘
-    *               └───┤   │   │ + ├───┘
-    *                   └───┘   └───┘
-    */
+     * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
+     * │   │   │   │   │   │       │ ` │ < │ { │ & │ | │
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │GUI│ALT│SFT│CTL│   │       │ $ │ % │ ( │ + │ " │
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │   │   │   │   │   │       │ @ │ = │ [ │ ! │ * │
+     * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
+     *           ┌───┐                   ┌───┐
+     *           │   ├───┐           ┌───┤   │
+     *           └───┤   ├───┐   ┌───┤ / ├───┘
+     *               └───┤   │   │ # ├───┘
+     *                   └───┘   └───┘
+     */
     [_SYMBOLS] = LAYOUT_split_3x5_3(
-        _______, _______, _______, _______, _______,        BACKTICK, IT_LABK, IT_LCBR, IT_AMPR, IT_PIPE,
-        KC_LGUI, KC_LALT, KC_LSFT, KC_LCTL, _______,        IT_DLR,   IT_PERC, IT_LPRN, IT_PLUS, IT_DQUO,
-        _______, _______, _______, _______, _______,        IT_AT,    IT_EQL,  IT_LBRC, IT_EXLM, IT_ASTR,
-                          _______, _______, _______,        IT_HASH,  IT_SLSH, _______
+        _______, _______, _______, _______, _______,           BACKTICK, IT_LABK, IT_LCBR, IT_AMPR, IT_PIPE,
+        KC_LGUI, KC_LALT, KC_LSFT, KC_LCTL, _______,           IT_DLR,   IT_PERC, IT_LPRN, IT_PLUS, IT_DQUO,
+        _______, _______, _______, _______, _______,           IT_AT,    IT_EQL,  IT_LBRC, IT_EXLM, IT_ASTR,
+                          _______, _______, _______,           IT_HASH,  IT_SLSH, _______
     ),
+
     /* Button Layer
-    * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
-    * │   │   │   │   │AF4│       │   │   │ ù │   │QMK│
-    * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-    * │ à │   │   │PSC│   │       │   │   │ è │ ì │ ò │
-    * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-    * │UND│CUT│CPY│PST│RDO│       │RDO│PST│CPY│CUT│UND│
-    * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
-    *           ┌───┐                   ┌───┐
-    *           │   ├───┐           ┌───┤   │
-    *           └───┤UND├───┐   ┌───┤   ├───┘
-    *               └───┤   │   │   ├───┘
-    *                   └───┘   └───┘
-    */
+     * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
+     * │   │   │   │   │AF4│       │   │   │ ù │ ù │QMK│
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │ à │   │   │PSC│   │       │   │EML│ è │ ì │ ò │
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │UND│CUT│CPY│PST│RDO│       │RDO│PST│CPY│CUT│UND│
+     * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
+     *           ┌───┐                   ┌───┐
+     *           │   ├───┐           ┌───┤   │
+     *           └───┤UND├───┐   ┌───┤   ├───┘
+     *               └───┤   │   │   ├───┘
+     *                   └───┘   └───┘
+     */
     [_BUTTON] = LAYOUT_split_3x5_3(
-        _______, _______, _______, _______, LALT(KC_F4),        _______, _______,  IT_OGRV, IT_UGRV, QK_BOOTLOADER,
-        _______, _______, _______, LSG(KC_S), _______,      _______,  TD(TD_EMAIL), TD(TD_EGRV_SFT), IT_IGRV, IT_AGRV,
-        C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),        C(KC_Y),     C(KC_V),   C(KC_C), C(KC_X), C(KC_Z),
-                          _______, C(KC_Z), _______,        _______,     _______,   _______
+        _______, _______, _______, _______, LALT(KC_F4),           _______, _______,     IT_UGRV,         IT_UGRV,       QK_BOOTLOADER,
+        _______, _______, _______, LSG(KC_S), _______,             _______,  TD(TD_EMAIL), TD(TD_EGRV_SFT), IT_IGRV,       IT_AGRV,
+        C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),               C(KC_Y),  C(KC_V),     C(KC_C),         C(KC_X),       C(KC_Z),
+                          _______, C(KC_Z), _______,                _______, _______,     _______
     ),
+
     /* Game Layer
-    * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
-    * │ Q │ W │ F │ P │ B │       │ J │ H │ U │ Y │_BS│
-    * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-    * │ A │ R │ S │ T │ G │       │ M │ N │ E │ I │ O │
-    * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-    * │ Z │ X │ C │ D │ V │       │ K │ L │ . │ , │???│
-    * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
-    *           ┌───┐                   ┌───┐
-    *           │ 1 ├───┐           ┌───┤Esc│
-    *           └───┤Spc├───┐   ┌───┤Bsp├───┘
-    *               └───┤ 2 │   │Ent├───┘
-    *                   └───┘   └───┘
-    */
-    // [_GAME] = LAYOUT_split_3x5_3(
-    //     KC_Q, KC_W, KC_F,         KC_P,   KC_B,             KC_J,   KC_H,    KC_U,   TD(TD_Y_CLIP), TO(_BASE),
-    //     KC_A, KC_R, KC_S,         KC_T,   KC_G,             KC_M,   KC_N,    KC_E,   KC_I,          KC_O,
-    //     KC_Z, KC_X, KC_C,         KC_D,   KC_V,             KC_K,   KC_L,    IT_DOT, IT_COMM,       TD(TD_MPLY_MNXT_MPRV),
-    //                 LSFT_T(KC_1), KC_SPC, LALT_T(KC_2),     KC_ENT, KC_BSPC, _______
-    // ),
+     * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
+     * │TAB│ Q │ W │ E │ R │       │ T │ Y │ U │YCL│BSE│
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │ 4 │ A │ S │ D │ F │       │ M │ N │ E │ I │ O │
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │ 3 │ Z │ X │ C │ V │       │ K │ L │ . │ , │MED│
+     * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
+     *           ┌───┐                   ┌───┐
+     *           │ 1 ├───┐           ┌───┤Esc│
+     *           └───┤Spc├───┐   ┌───┤Bsp├───┘
+     *               └───┤ 2 │   │Ent├───┘
+     *                   └───┘   └───┘
+     */
     [_GAME] = LAYOUT_split_3x5_3(
-        KC_TAB, KC_Q, KC_W,         KC_E,   KC_R,             KC_T,   KC_Y,    KC_U,   TD(TD_Y_CLIP), TO(_BASE),
-        KC_4, KC_A, KC_S,         KC_D,   KC_F,             KC_M,   KC_N,    KC_E,   KC_I,          KC_O,
-        KC_3, KC_Z, KC_X,         KC_C,   KC_V,             KC_K,   KC_L,    IT_DOT, IT_COMM,       TD(TD_MPLY_MNXT_MPRV),
-                    LSFT_T(KC_1), KC_SPC, LALT_T(KC_2),     KC_ENT, KC_BSPC, _______
+        KC_TAB, KC_Q,  KC_W,          KC_E,   KC_R,             KC_T,   KC_Y,    KC_U,    TD(TD_Y_CLIP),       TO(_BASE),
+        KC_4,   KC_A,  KC_S,          KC_D,   KC_F,             KC_M,   KC_N,    KC_E,    KC_I,                KC_O,
+        KC_3,   KC_Z,  KC_X,          KC_C,   KC_V,             KC_K,   KC_L,    IT_DOT,  IT_COMM,             TD(TD_MPLY_MNXT_MPRV),
+                       LSFT_T(KC_1),  KC_SPC, LALT_T(KC_2),     KC_ENT, KC_BSPC, _______
     ),
+
     /* Function Layer
-    * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
-    * │   │   │   │   │   │       │   │   │   │   │   │
-    * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-    * │   │   │   │   │   │       │   │   │   │   │   │
-    * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-    * │   │   │   │   │   │       │   │   │   │   │   │
-    * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
-    *           ┌───┐                   ┌───┐
-    *           │   ├───┐           ┌───┤   │
-    *           └───┤   ├───┐   ┌───┤   ├───┘
-    *               └───┤   │   │   ├───┘
-    *                   └───┘   └───┘
-    */
+     * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
+     * │   │   │   │   │   │       │NXT│ F7│ F8│ F9│F12│
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │GUI│ALT│SFT│CTL│   │       │PLY│ F4│ F5│ F6│F11│
+     * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+     * │   │   │   │   │   │       │PRV│ F1│ F2│ F3│F10│
+     * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
+     *           ┌───┐                   ┌───┐
+     *           │   ├───┐           ┌───┤NXT│
+     *           └───┤   ├───┐   ┌───┤PLY├───┘
+     *               └───┤   │   │PRV├───┘
+     *                   └───┘   └───┘
+     */
     [_FUNCTION] = LAYOUT_split_3x5_3(
-        _______, _______, _______, _______, _______,         KC_MNXT, KC_F7, KC_F8,   KC_F9,   KC_F12,
-        KC_LGUI, KC_LALT, KC_LSFT, KC_LCTL, _______,         KC_MPLY, KC_F4, KC_F5,   KC_F6,   KC_F11,
-        _______, _______, _______, _______, _______,         KC_MPRV, KC_F1, KC_F2,   KC_F3,   KC_F10,
-                          _______, _______, _______,         KC_MPRV, KC_MPLY, KC_MNXT
+        _______, _______, _______, _______, _______,           KC_MNXT, KC_F7, KC_F8,   KC_F9,   KC_F12,
+        KC_LGUI, KC_LALT, KC_LSFT, KC_LCTL, _______,           KC_MPLY, KC_F4, KC_F5,   KC_F6,   KC_F11,
+        _______, _______, _______, _______, _______,           KC_MPRV, KC_F1, KC_F2,   KC_F3,   KC_F10,
+                          _______, _______, _______,           KC_MPRV, KC_MPLY, KC_MNXT
     ),
 };
