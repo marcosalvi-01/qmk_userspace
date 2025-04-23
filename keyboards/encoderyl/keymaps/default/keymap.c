@@ -4,7 +4,6 @@
 #include QMK_KEYBOARD_H
 #include "keymap_italian.h"
 #include "sendstring_italian.h"
-#include "print.h"
 #include "raw_hid.h"
 
 enum layer_names {
@@ -46,8 +45,8 @@ void send_backtick_for_os(void) {
         case OS_WINDOWS:
             // Windows: Alt+96 (using numpad)
             register_code(KC_LALT);
-            tap_code16(KC_P9);
-            tap_code16(KC_P6);
+            tap_code(KC_KP_9);
+            tap_code(KC_KP_6);
             unregister_code(KC_LALT);
             break;
         case OS_LINUX:
@@ -106,7 +105,7 @@ void email_on_release(tap_dance_state_t *state, void *user_data) {
             if (state->count > 3) {
                 // Delete the previous email
                 for (int i = 0; i < 22; i++) {
-                    register_code(KC_BSPC);
+                    tap_code(KC_BSPC);
                 }
             }
             SEND_STRING("marco.salvi@ingv.it");
@@ -129,17 +128,22 @@ void email_on_release(tap_dance_state_t *state, void *user_data) {
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    // If the highest layer is either game or base coming from game, print the layer
-    if (get_highest_layer(state) == _GAME || (get_highest_layer(layer_state) == _GAME && get_highest_layer(state) == _BASE)) {
-        char report[32];
-        // Clear the buffer to ensure unused bytes are zero
-        memset(report, 0, sizeof(report));
-        // Fill the buffer with your layer message
-        snprintf(report, sizeof(report), "[%u]", get_highest_layer(state));
-        // Send exactly 32 bytes over the raw HID interface
+    // remember the previous state across calls
+    static layer_state_t prev_state = 0;
+
+    uint8_t prev = get_highest_layer(prev_state);
+    uint8_t curr = get_highest_layer(state);
+
+    // trigger when we just entered GAME, or just left GAME back to BASE
+    if ((curr == _GAME && prev != _GAME) || (curr == _BASE && prev == _GAME)) {
+        char report[32] = {0};
+        // show the new layer index in brackets, e.g. "[7]"
+        snprintf(report, sizeof(report), "[%u]", curr);
         raw_hid_send((uint8_t *)report, sizeof(report));
     }
 
+    // update prev_state for next time
+    prev_state = state;
     return state;
 }
 
@@ -305,10 +309,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case TMUX_SESSIONIZER:
             if (record->event.pressed) {
                 register_code(KC_LCTL);
-                tap_code16(KC_T);
+                tap_code(KC_T);
                 unregister_code(KC_LCTL);
-                tap_code16(KC_O);
+                tap_code(KC_O);
             }
+            return false;
         default:
             return true;
     }
@@ -320,19 +325,19 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
         case _BASE:
         case _BUTTON:
             if (clockwise) {
-                tap_code16(KC_SPC);
-                tap_code16(KC_H);
-                tap_code16(KC_N);
+                tap_code(KC_SPC);
+                tap_code(KC_H);
+                tap_code(KC_N);
             } else {
-                tap_code16(KC_SPC);
-                tap_code16(KC_H);
-                tap_code16(KC_P);
+                tap_code(KC_SPC);
+                tap_code(KC_H);
+                tap_code(KC_P);
             }
             break;
         case _GAME:
             if (clockwise) {
                 register_code(KC_LALT);
-                tap_code16(KC_TAB);
+                tap_code(KC_TAB);
             } else {
                 register_code(KC_LALT);
                 tap_code16(S(KC_TAB));
