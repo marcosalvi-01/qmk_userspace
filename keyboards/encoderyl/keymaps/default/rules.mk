@@ -5,6 +5,7 @@ CAPS_WORD_ENABLE		= yes
 TAP_DANCE_ENABLE		= yes
 BOOTMAGIC_ENABLE		= yes
 BOOTLOADER				= caterina
+OS_DETECTION_ENABLE		= yes
 
 # Ensure QMK’s keymap-introspection build pulls in the full keymap.c
 # so that combos, tap-dance actions, and community modules are detected correctly.

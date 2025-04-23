@@ -33,6 +33,68 @@ enum td_keycodes {
     TD_EMAIL,
 };
 
+// Macro function to send the correct key combination for backtick based on OS
+void send_backtick_for_os(void) {
+    switch (detected_host_os()) {
+        case OS_MACOS:
+            // macOS: Alt+9+space
+            register_code(KC_LALT);
+            tap_code(KC_9);
+            tap_code(KC_SPC);
+            unregister_code(KC_LALT);
+            break;
+        case OS_WINDOWS:
+            // Windows: Alt+96 (using numpad)
+            register_code(KC_LALT);
+            tap_code16(KC_P9);
+            tap_code16(KC_P6);
+            unregister_code(KC_LALT);
+            break;
+        case OS_LINUX:
+            // Hyprland/Wayland using Right Alt (Compose) and apostrophe
+            register_code(KC_RALT);
+            tap_code(IT_QUOT); // Apostrophe key
+            unregister_code(KC_RALT);
+            break;
+        default:
+            // Fallback - just try to send the literal character
+            tap_code(KC_GRAVE);
+            break;
+    }
+}
+
+// Macro function to send the correct key combination for tilde based on OS
+void send_tilde_for_os(void) {
+    switch (detected_host_os()) {
+        case OS_MACOS:
+            // macOS: Alt+7 for Italian layout
+            register_code(KC_LALT);
+            tap_code(KC_7);
+            unregister_code(KC_LALT);
+            break;
+        case OS_WINDOWS:
+            // Windows: Alt+126 (using numpad)
+            register_code(KC_LALT);
+            tap_code(KC_KP_1);
+            tap_code(KC_KP_2);
+            tap_code(KC_KP_6);
+            unregister_code(KC_LALT);
+            break;
+        case OS_LINUX:
+            // Working solution for Hyprland/Wayland
+            register_code(KC_RALT);
+            tap_code(IT_IGRV);
+            unregister_code(KC_RALT);
+            break;
+        default:
+            // Fallback - just try to send the literal character
+            register_code(KC_LSFT);
+            tap_code(KC_GRAVE);
+            unregister_code(KC_LSFT);
+            break;
+    }
+}
+
 // Email macro
 void email_on_press(tap_dance_state_t *state, void *user_data) {
     // Empty function to follow the function signature, the important part is the release function
@@ -223,12 +285,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 if ((mods | get_weak_mods()) & MOD_MASK_SHIFT) { // Shift is active
                     return process_record_user(TILDE, record);
                 }
-                // Alt + 96
-                register_code(KC_LALT);
-                tap_code16(KC_P9);
-                tap_code16(KC_P6);
-            } else {
-                unregister_code(KC_LALT);
+                send_backtick_for_os();
             }
             return false;
         case TILDE:
@@ -238,19 +295,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     del_mods(MOD_MASK_SHIFT);                    // Disable shift
                     del_weak_mods(MOD_MASK_SHIFT);
                     send_keyboard_report();
-                    register_code(KC_LALT); // Tilde
-                    tap_code(KC_P1);
-                    tap_code(KC_P2);
-                    tap_code(KC_P6);
+                    send_tilde_for_os();
                     set_mods(mods); // Restore shift
                 } else {
-                    register_code(KC_LALT); // Tilde
-                    tap_code(KC_P1);
-                    tap_code(KC_P2);
-                    tap_code(KC_P6);
+                    send_tilde_for_os();
                 }
-            } else {
-                unregister_code(KC_LALT);
             }
             return false;
         case TMUX_SESSIONIZER:
