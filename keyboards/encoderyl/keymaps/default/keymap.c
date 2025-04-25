@@ -21,7 +21,7 @@ enum custom_keycodes {
     CLIP = SAFE_RANGE,
     BACKTICK,
     TILDE,
-    TMUX_SESSIONIZER,
+    TMUX_SPINE,
 };
 
 // Tap dance keycodes
@@ -306,12 +306,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             return false;
-        case TMUX_SESSIONIZER:
+        case TMUX_SPINE:
             if (record->event.pressed) {
                 register_code(KC_LCTL);
                 tap_code(KC_T);
+                tap_code(KC_S);
                 unregister_code(KC_LCTL);
-                tap_code(KC_O);
             }
             return false;
         default:
@@ -435,7 +435,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_HOME, KC_UP,   KC_END,           _______,           _______, _______, _______, _______, _______,
         KC_PGUP, KC_LEFT, KC_DOWN, KC_RGHT,          _______,           _______, KC_LCTL, KC_LSFT, KC_LALT, KC_LGUI,
         KC_PGDN, _______, _______, _______,          _______,           _______, _______, _______, _______, _______,
-                          _______, TMUX_SESSIONIZER, _______,           _______, _______, _______
+                          _______, TMUX_SPINE, _______,           _______, _______, _______
     ),
 
     /* Numbers Layer
@@ -503,9 +503,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     /* Button Layer
      * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
-     * │   │   │   │   │AF4│       │   │   │ ù │ ù │QMK│
+     * │   │   │   │   │AF4│       │   │   │ ò │ ù │QMK│
      * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-     * │ à │   │   │PSC│   │       │   │EML│ è │ ì │ ò │
+     * │   │   │   │PSC│   │       │   │EML│ è │ ì │ à │
      * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
      * │UND│CUT│CPY│PST│RDO│       │RDO│PST│CPY│CUT│UND│
      * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
@@ -516,7 +516,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      *                   └───┘   └───┘
      */
     [_BUTTON] = LAYOUT_split_3x5_3(
-        _______, _______, _______, _______, LALT(KC_F4),           _______, _______,     IT_UGRV,         IT_UGRV,       QK_BOOTLOADER,
+        _______, _______, _______, _______, LALT(KC_F4),           _______, _______,     IT_OGRV,         IT_UGRV,       QK_BOOTLOADER,
         _______, _______, _______, LSG(KC_S), _______,             _______,  TD(TD_EMAIL), TD(TD_EGRV_SFT), IT_IGRV,       IT_AGRV,
         C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),               C(KC_Y),  C(KC_V),     C(KC_C),         C(KC_X),       C(KC_Z),
                           _______, C(KC_Z), _______,                _______, _______,     _______
