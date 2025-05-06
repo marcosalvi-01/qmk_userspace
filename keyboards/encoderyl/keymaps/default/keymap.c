@@ -39,8 +39,8 @@ void send_backtick_for_os(void) {
             // macOS: Alt+9+space
             register_code(KC_LALT);
             tap_code(KC_9);
-            tap_code(KC_SPC);
             unregister_code(KC_LALT);
+            tap_code(KC_SPC);
             break;
         case OS_WINDOWS:
             // Windows: Alt+96 (using numpad)
@@ -66,9 +66,9 @@ void send_backtick_for_os(void) {
 void send_tilde_for_os(void) {
     switch (detected_host_os()) {
         case OS_MACOS:
-            // macOS: Alt+7 for Italian layout
+            // macOS: Alt+5 for Italian layout
             register_code(KC_LALT);
-            tap_code(KC_7);
+            tap_code(KC_5);
             unregister_code(KC_LALT);
             break;
         case OS_WINDOWS:
