@@ -9,6 +9,7 @@
 #define TAPPING_TERM 200
 #define TAPPING_TERM_PER_KEY
 #define PERMISSIVE_HOLD
+#define COMBO_TERM_PER_COMBO
 
 // qmk's achordion
 #define CHORDAL_HOLD
