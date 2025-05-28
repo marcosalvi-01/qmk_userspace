@@ -221,6 +221,16 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
+enum combo_events {
+    GAME_LAYER_COMBO,
+    BASE_LAYER_COMBO,
+    CAPS_WORD_COMBO,
+    ESCAPE_COMBO_GAME,
+    ESCAPE_COMBO_BASE,
+    CAPS_LOCK_COMBO,
+    VIM_COMBO,
+};
+
 // Combos
 const uint16_t PROGMEM game_layer_combo[]  = {KC_V, KC_D, COMBO_END};
 const uint16_t PROGMEM base_layer_combo[]  = {KC_X, KC_C, COMBO_END};
@@ -231,14 +241,26 @@ const uint16_t PROGMEM caps_lock_combo[]   = {KC_D, KC_H, COMBO_END};
 const uint16_t PROGMEM vim_combo[]         = {LCTL_T(KC_N), LSFT_T(KC_E), COMBO_END};
 
 combo_t key_combos[] = {
-    COMBO(game_layer_combo, TG(_GAME)),
-    COMBO(base_layer_combo, TG(_GAME)),
-    COMBO(caps_word_combo, CW_TOGG),
-    COMBO(escape_combo_game, KC_ESC),
-    COMBO(caps_lock_combo, KC_CAPS),
-    COMBO(escape_combo_base, KC_ESC),
-    COMBO(vim_combo, KC_ESC),
+    [GAME_LAYER_COMBO] = COMBO(game_layer_combo, TG(_GAME)),
+    [BASE_LAYER_COMBO] = COMBO(base_layer_combo, TG(_GAME)),
+    [CAPS_WORD_COMBO] = COMBO(caps_word_combo, CW_TOGG),
+    [ESCAPE_COMBO_GAME] = COMBO(escape_combo_game, KC_ESC),
+    [CAPS_LOCK_COMBO] = COMBO(caps_lock_combo, KC_CAPS),
+    [ESCAPE_COMBO_BASE] = COMBO(escape_combo_base, KC_ESC),
+    [VIM_COMBO] = COMBO(vim_combo, KC_ESC),
 };
+
+#ifdef COMBO_TERM_PER_COMBO
+uint16_t get_combo_term(uint16_t combo_index, combo_t *combo) {
+    switch (combo_index) {
+        case ESCAPE_COMBO_BASE:
+        case VIM_COMBO:
+            return 50;
+    }
+
+    return COMBO_TERM;
+}
+#endif
 
 // Caps Word behavior
 bool caps_word_press_user(uint16_t keycode) {
