@@ -22,6 +22,7 @@ enum custom_keycodes {
     BACKTICK,
     TILDE,
     TMUX_SPINE,
+    PRINT_SCREEN,
 };
 
 // Tap dance keycodes
@@ -58,6 +59,29 @@ void send_backtick_for_os(void) {
         default:
             // Fallback - just try to send the literal character
             tap_code(KC_GRAVE);
+            break;
+    }
+}
+
+void send_print_screen_for_os(void) {
+    switch (detected_host_os()) {
+        case OS_MACOS:
+            // macOS: Gui+Shift+4
+            register_code(KC_LGUI);
+            register_code(KC_LSFT);
+            tap_code(KC_4);
+            unregister_code(KC_LGUI);
+            unregister_code(KC_LSFT);
+            break;
+        case OS_LINUX:
+        case OS_WINDOWS:
+        default:
+            // Start+Shift+S
+            register_code(KC_LGUI);
+            register_code(KC_LSFT);
+            tap_code(KC_S);
+            unregister_code(KC_LGUI);
+            unregister_code(KC_LSFT);
             break;
     }
 }
@@ -305,6 +329,11 @@ const custom_shift_key_t custom_shift_keys[] = {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // Handle custom keycodes
     switch (keycode) {
+        case PRINT_SCREEN:
+            if (record->event.pressed) {
+                send_print_screen_for_os();
+            }
+            return false;
         case BACKTICK:
             if (record->event.pressed) {
                 const uint8_t mods = get_mods();
@@ -532,10 +561,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      *                   └───┘   └───┘
      */
     [_BUTTON] = LAYOUT_split_3x5_3(
-        _______, _______, _______, _______, LALT(KC_F4),           _______, _______,     IT_OGRV,         IT_UGRV,       QK_BOOTLOADER,
-        _______, _______, _______, LSG(KC_S), _______,             _______,  TD(TD_EMAIL), TD(TD_EGRV_SFT), IT_IGRV,       IT_AGRV,
-        C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),               C(KC_Y),  C(KC_V),     C(KC_C),         C(KC_X),       C(KC_Z),
-                          _______, C(KC_Z), _______,                _______, _______,     _______
+        _______, _______, _______, _______,      LALT(KC_F4),           _______, _______,     IT_OGRV,         IT_UGRV,       QK_BOOTLOADER,
+        _______, _______, _______, PRINT_SCREEN, _______,               _______,  TD(TD_EMAIL), TD(TD_EGRV_SFT), IT_IGRV,       IT_AGRV,
+        C(KC_Z), C(KC_X), C(KC_C), C(KC_V),      C(KC_Y),               C(KC_Y),  C(KC_V),     C(KC_C),         C(KC_X),       C(KC_Z),
+                          _______, C(KC_Z),      _______,               _______, _______,     _______
     ),
 
     /* Game Layer
