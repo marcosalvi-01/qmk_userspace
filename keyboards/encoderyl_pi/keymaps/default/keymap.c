@@ -279,7 +279,7 @@ uint16_t get_combo_term(uint16_t combo_index, combo_t *combo) {
     switch (combo_index) {
         case ESCAPE_COMBO_BASE:
         case VIM_COMBO:
-            return 50;
+            return 25;
     }
 
     return COMBO_TERM;
@@ -375,7 +375,7 @@ static int8_t ticks = 2;
 // Encoder behavior based on the current layer
 bool encoder_update_user(uint8_t index, bool clockwise) {
     // Execute only once every 4 steps
-    if (ticks++ < 2)
+    if (ticks++ < 4)
         return false;
 
     // Reset the ticks counter
