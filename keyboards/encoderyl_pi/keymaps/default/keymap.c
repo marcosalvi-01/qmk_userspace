@@ -411,7 +411,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
             break;
         case _NUMBERS:
         case _FUNCTION:
-            clockwise ? tap_code16(KC_VOLU) : tap_code16(KC_VOLD); // Scroll wheel
+            clockwise ? tap_code16(KC_VOLU) : tap_code16(KC_VOLD);
             break;
     }
     return false;
