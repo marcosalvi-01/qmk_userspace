@@ -321,7 +321,8 @@ const custom_shift_key_t custom_shift_keys[] = {
     {IT_LPRN, IT_RPRN},                 // Shift ( is )
     {IT_LABK, IT_RABK},                 // Shift < is >
     {IT_DLR, IT_EURO},                  // Shift $ is €
-    {IT_QUES, IT_QUOT},                 // Shift ? is '
+    {IT_QUOT, IT_QUES},                 // Shift ? is '
+    {IT_PERC, IT_CIRC},                 // Shift % is ^
     {LT(_NAVIGATION, KC_BSPC), KC_DEL}, // Shift Backspace is Delete
     {KC_BSPC, KC_DEL},                  // Shift Backspace is Delete
 };
@@ -443,7 +444,7 @@ bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record, u
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* Default Layer
      * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
-     * │ Q │ L │ Y │ P │ B │       │ Z │ F │ O │ U │ ? │
+     * │ Q │ L │ Y │ P │ B │       │ Z │ F │ O │ U │ ' │
      * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
      * │ C │ R │ S │ T │ G │       │ M │ N │ E │ I │ A │
      * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
@@ -456,10 +457,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      *                   └───┘   └───┘
      */
     [_BASE] = LAYOUT_split_3x5_3(
-        KC_Q,              KC_L,         KC_Y,                 KC_P,                 KC_B,                    KC_Z,                  KC_F,                     KC_O,         KC_U,         IT_QUES,
+        KC_Q,              KC_L,         KC_Y,                 KC_P,                 KC_B,                    KC_Z,                  KC_F,                     KC_O,         KC_U,         IT_QUOT,
         LGUI_T(KC_C),      LALT_T(KC_R), LSFT_T(KC_S),         LCTL_T(KC_T),         KC_G,                    KC_M,                  LCTL_T(KC_N),             LSFT_T(KC_E), LALT_T(KC_I), LGUI_T(KC_A),
         LT(_BUTTON, KC_W), KC_J,         KC_V,                 KC_D,                 KC_K,                    KC_X,                  KC_H,                     IT_DOT,       IT_COMM,      LT(_BUTTON, IT_MINS),
-                                         LT(_NUMBERS, KC_DEL), LT(_SYMBOLS, KC_SPC), LT(_FUNCTION, KC_TAB),   LT(_SHORTCUTS, KC_ENT), LT(_NAVIGATION, KC_BSPC), KC_ESC
+                                         LT(_NUMBERS, KC_DEL), LT(_SYMBOLS, KC_SPC), LT(_FUNCTION, KC_TAB),   KC_ENT,                LT(_NAVIGATION, KC_BSPC), KC_ESC
     ),
 
     /* Navigation Layer
