@@ -385,15 +385,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
     switch (get_highest_layer(layer_state)) {
         case _BASE:
         case _BUTTON:
-            if (clockwise) {
-                tap_code(KC_SPC);
-                tap_code(KC_H);
-                tap_code(KC_N);
-            } else {
-                tap_code(KC_SPC);
-                tap_code(KC_H);
-                tap_code(KC_P);
-            }
+            clockwise ? tap_code16(C(KC_PGDN)) : tap_code16(C(KC_PGUP));
             break;
         case _GAME:
             if (clockwise) {
@@ -408,7 +400,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
             break;
         // Navigation in applications (switch between tabs)
         case _SYMBOLS:
-            clockwise ? tap_code16(C(KC_PGDN)) : tap_code16(C(KC_PGUP));
+            clockwise ? tap_code16(MS_WHLD) : tap_code16(MS_WHLU);
             break;
         case _NUMBERS:
         case _FUNCTION:
