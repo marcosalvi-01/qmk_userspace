@@ -23,6 +23,7 @@ enum custom_keycodes {
     TILDE,
     TMUX_SPINE,
     PRINT_SCREEN,
+    OCR,
 };
 
 // Tap dance keycodes
@@ -335,6 +336,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 send_print_screen_for_os();
             }
             return false;
+        case OCR:
+            if (record->event.pressed) {
+                register_code(KC_LALT);
+                register_code(KC_LCTL);
+                tap_code(KC_O);
+                unregister_code(KC_LALT);
+                unregister_code(KC_LCTL);
+            }
+            return false;
         case BACKTICK:
             if (record->event.pressed) {
                 const uint8_t mods = get_mods();
@@ -555,7 +565,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      */
     [_BUTTON] = LAYOUT_split_3x5_3(
         _______, _______, _______, _______,      LALT(KC_F4),           _______, _______,     IT_OGRV,         IT_UGRV,       QK_BOOTLOADER,
-        _______, _______, _______, PRINT_SCREEN, _______,               _______,  TD(TD_EMAIL), TD(TD_EGRV_SFT), IT_IGRV,       IT_AGRV,
+        _______, _______, OCR,     PRINT_SCREEN, _______,               _______,  TD(TD_EMAIL), TD(TD_EGRV_SFT), IT_IGRV,       IT_AGRV,
         C(KC_Z), C(KC_X), C(KC_C), C(KC_V),      C(KC_Y),               C(KC_Y),  C(KC_V),     C(KC_C),         C(KC_X),       C(KC_Z),
                           _______, C(KC_Z),      _______,               _______, _______,     _______
     ),
@@ -602,4 +612,3 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                           _______, _______, _______,           KC_MPRV, KC_MPLY, KC_MNXT
     ),
 };
-

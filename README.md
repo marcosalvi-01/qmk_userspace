@@ -39,21 +39,33 @@ This is a template repository which allows for an external set of QMK keymaps to
 
 Alternatively, if you configured your build targets above, you can use `qmk userspace-compile` to build all of your userspace targets at once.
 
-## Extra info
+## Flashing the RP2040 keyboard
 
-If you wish to point GitHub actions to a different repository, a different branch, or even a different keymap name, you can modify `.github/workflows/build_binaries.yml` to suit your needs.
+For the `encoderyl_pi` RP2040 keyboard, build from the userspace, then flash from the QMK firmware checkout:
 
-To override the `build` job, you can change the following parameters to use a different QMK repository or branch:
+```sh
+cd ~/qmk_userspace
+make encoderyl_pi:default
+cd ~/qmk_firmware
+make encoderyl_pi:default:flash
 ```
-    with:
-      qmk_repo: qmk/qmk_firmware
-      qmk_ref: master
+
+The `:flash` target waits for an RP2040 UF2 bootloader drive. Enter bootloader with `QK_BOOTLOADER` (or by holding BOOTSEL while reconnecting the keyboard). QMK's UF2 helper only detects mounted drives, so it can wait indefinitely if Linux detects the keyboard but does not mount it.
+
+If the drive is not mounted, use another terminal:
+
+```sh
+lsblk -o NAME,LABEL,FSTYPE,MOUNTPOINTS
+udisksctl mount -b /dev/sda1
 ```
 
-If you wish to manually manage `qmk_firmware` using git within the userspace repository, you can add `qmk_firmware` as a submodule in the userspace directory instead. GitHub Actions will automatically use the submodule at the pinned revision if it exists, otherwise it will use the default latest revision of `qmk_firmware` from the main repository.
+Use the device labelled `RPI-RP2`; its device name may not be `/dev/sda1` on every system. The flash target should detect the newly mounted drive and copy the firmware automatically. Alternatively, copy the generated UF2 manually:
 
-This can also be used to control which fork is used, though only upstream `qmk_firmware` will have support for external userspace until other manufacturers update their forks.
+```sh
+mountpoint="$(findmnt -n -o TARGET /dev/sda1)"
+cp ~/qmk_userspace/encoderyl_pi_default.uf2 "$mountpoint/NEW.UF2"
+sync
+```
 
-1. (First time only) `git submodule add https://github.com/qmk/qmk_firmware.git`
-1. (To update) `git submodule update --init --recursive`
-1. Commit your changes to your userspace repository
+The keyboard reboots after the UF2 file is accepted. RP2040 uses USB mass-storage UF2 flashing, not `dfu-util`.
+

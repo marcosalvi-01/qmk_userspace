@@ -7,7 +7,7 @@ ifeq ($(QMK_USERSPACE),)
     QMK_USERSPACE := $(shell pwd)
 endif
 
-QMK_FIRMWARE_ROOT = $(shell qmk config -ro user.qmk_home | cut -d= -f2 | sed -e 's@^None$$@@g')
+QMK_FIRMWARE_ROOT = $(shell qmk config -ro user.qmk_home | cut -d= -f2 | sed -e 's/ (config)$$//' -e 's@^~@$(HOME)@' -e 's@^None$$@@g')
 ifeq ($(QMK_FIRMWARE_ROOT),)
     # Try using a default location instead of erroring out
     QMK_FIRMWARE_ROOT=${HOME}/qmk_firmware/
@@ -26,12 +26,12 @@ sync_keyboards:
 		kb_name=$$(basename $$kb); \
 		if [ -d "${QMK_FIRMWARE_ROOT}/keyboards/$$kb_name" ]; then \
 			echo "Removing existing keyboard: $$kb_name"; \
-			rm -rf ${QMK_FIRMWARE_ROOT}/keyboards/$$kb_name; \
+			rm -rf "${QMK_FIRMWARE_ROOT}/keyboards/$$kb_name"; \
 		fi; \
 	done
 	@# Copy the contents of the keyboard directory from the userspace to the qmk firmware dir
 	@echo "Copying keyboards to QMK firmware directory..."
-	cp -r ${QMK_USERSPACE}/keyboards/* ${QMK_FIRMWARE_ROOT}/keyboards/
+	cp -r "${QMK_USERSPACE}"/keyboards/* "${QMK_FIRMWARE_ROOT}/keyboards/"
 
 %: sync_keyboards
 	+$(MAKE) -C $(QMK_FIRMWARE_ROOT) $@ QMK_USERSPACE=$(QMK_USERSPACE)
